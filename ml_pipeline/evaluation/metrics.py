@@ -30,6 +30,7 @@ def load_artifacts(model_name="XGBoost"):
         X, y, test_size=0.2, stratify=y, random_state=42
     )
     feature_names = list(X.columns)
+    X = X.apply(pd.to_numeric, errors="coerce").fillna(0)
     print(f"Loaded: {model_name} | Test rows: {X_test.shape[0]:,}")
     return model, scaler, X_test, y_test, feature_names
 
@@ -129,10 +130,12 @@ def shap_analysis(model, X_test, feature_names, sample_n=1000, model_name="XGBoo
     X_sample = pd.DataFrame(X_test, columns=feature_names).sample(
         min(sample_n, len(X_test)), random_state=42
     )
+    X_sample = X_sample.apply(pd.to_numeric, errors="coerce").fillna(0)
+    
 
     explainer   = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(X_sample)
-    sv = shap_values[1] if isinstance(shap_values, list) else shap_values
+    sv = shap_values.values if hasattr(shap_values, "values") else shap_values
 
     # --- Global bar chart (top 20 features) ---
     plt.figure(figsize=(10, 8))
@@ -196,4 +199,4 @@ def full_evaluation_report(model_name="XGBoost"):
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    top_features = full_evaluation_report("XGBoost")
+    top_features = full_evaluation_report("LightGBM")
