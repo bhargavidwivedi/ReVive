@@ -10,3 +10,23 @@ media/
 staticfiles/
 .env
 .env.local
+# Data — never commit patient data
+data/
+*.csv
+*.xlsx
+*.parquet
+
+# Trained models
+models/
+*.pkl
+*.joblib
+
+# Outputs
+outputs/
+
+# Environment
+.env
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
