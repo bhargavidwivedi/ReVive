@@ -17,9 +17,28 @@ data/
 *.parquet
 
 # Trained models
-models/
+ml_pipeline/models/saved/
 *.pkl
 *.joblib
+Save and close. Then run:
+
+cmd
+git add .gitignore
+git add ml_pipeline/models/train.py
+git add ml_pipeline/evaluation/metrics.py
+cmd
+git status
+You should see all 3 files as green/staged. Then commit:
+
+cmd
+git commit -m "feat: add model training and evaluation scripts, fix gitignore"
+cmd
+git push origin main
+Paste what you see! 🚀
+
+
+
+Want to be n
 
 # Outputs
 outputs/
