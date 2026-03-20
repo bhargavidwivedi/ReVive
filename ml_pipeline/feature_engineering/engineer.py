@@ -18,7 +18,7 @@ def encode_target(df: pd.DataFrame) -> pd.DataFrame:
     We predict 30-day readmission → only '<30' is a positive case.
     """
     df = df.copy()
-    df["readmitted_30d"] = (df["readmitted"] == "<30").astype(int)
+    df["readmitted_30d"] = (df["readmitted"] != "NO").astype(int)
     print(f"Target distribution:\n{df['readmitted_30d'].value_counts()}")
     return df
 
