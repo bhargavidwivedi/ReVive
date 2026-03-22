@@ -1,3 +1,4 @@
+from .tasks import score_patient_on_discharge, test_celery
 from django.shortcuts import render
 
 # Create your views here.
@@ -150,3 +151,25 @@ def health(request):
         "threshold" : THRESHOLD,
         "features"  : len(FEATURE_NAMES),
     })
+@api_view(["POST"])
+def trigger_discharge_scoring(request):
+    """POST /api/discharge/ — trigger async scoring on patient discharge"""
+    patient_data = request.data.get("patient_data", {})
+    patient_id   = request.data.get("patient_id", "UNKNOWN")
+    notify_email = request.data.get("notify_email", None)
+
+    task = score_patient_on_discharge.delay(
+        patient_data, patient_id, notify_email
+    )
+    return Response({
+        "status"     : "queued",
+        "task_id"    : task.id,
+        "patient_id" : patient_id,
+        "message"    : "Patient scoring started in background"
+    })
+
+@api_view(["GET"])
+def test_celery_view(request):
+    """GET /api/test-celery/ — verify Celery is working"""
+    task = test_celery.delay()
+    return Response({"status": "queued", "task_id": task.id})
