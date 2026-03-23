@@ -1,3 +1,4 @@
+from .continuous_learning import record_outcome, detect_drift, retrain_model, get_system_health
 from .care_pathway import assign_care_pathway
 from .llm_notes import analyze_patient_notes
 from .fhir_integration import build_features_from_fhir, search_patients
@@ -231,3 +232,27 @@ def care_pathway(request):
 
     care_plan = assign_care_pathway(risk_level, patient_data, llm_analysis)
     return Response(care_plan)
+@api_view(["POST"])
+def record_patient_outcome(request):
+    """POST /api/outcomes/ — record actual readmission outcome"""
+    patient_id         = request.data.get("patient_id")
+    predicted_risk     = request.data.get("predicted_risk", 0.5)
+    actually_readmitted= request.data.get("actually_readmitted", False)
+    notes              = request.data.get("notes", "")
+    result = record_outcome(patient_id, predicted_risk, actually_readmitted, notes)
+    return Response(result)
+
+@api_view(["GET"])
+def drift_detection(request):
+    """GET /api/drift/ — check for model drift"""
+    return Response(detect_drift())
+
+@api_view(["POST"])
+def trigger_retraining(request):
+    """POST /api/retrain/ — trigger model retraining"""
+    return Response(retrain_model())
+
+@api_view(["GET"])
+def system_health(request):
+    """GET /api/system-health/ — overall system health"""
+    return Response(get_system_health())
