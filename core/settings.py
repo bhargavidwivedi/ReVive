@@ -82,3 +82,4 @@ EMAIL_USE_TLS       = True
 EMAIL_HOST_USER     = "bhargavidwivedi56@gmail.com"
 EMAIL_HOST_PASSWORD = "kuekwfdbypiuonkd"
 DEFAULT_FROM_EMAIL  = "bhargavidwivedi56@gmail.com"
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
