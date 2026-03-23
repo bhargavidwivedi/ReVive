@@ -1,3 +1,4 @@
+from .care_pathway import assign_care_pathway
 from .llm_notes import analyze_patient_notes
 from .fhir_integration import build_features_from_fhir, search_patients
 from .tasks import score_patient_on_discharge, test_celery
@@ -218,3 +219,15 @@ def analyze_notes(request):
 
     result = analyze_patient_notes(notes, features)
     return Response(result)
+@api_view(["POST"])
+def care_pathway(request):
+    """POST /api/care-pathway/ — assign autonomous care pathway"""
+    patient_data = request.data.get("patient_data", {})
+    risk_level   = request.data.get("risk_level", "Medium")
+    llm_analysis = request.data.get("llm_analysis", {})
+
+    if not patient_data:
+        return Response({"error": "patient_data is required"}, status=400)
+
+    care_plan = assign_care_pathway(risk_level, patient_data, llm_analysis)
+    return Response(care_plan)

@@ -9,5 +9,6 @@ urlpatterns = [
     path("test-celery/",           views.test_celery_view,         name="test-celery"),
     path("fhir/search/",           views.fhir_search,              name="fhir-search"),
     path("fhir/<str:patient_id>/", views.fhir_predict,             name="fhir-predict"),
-    path("analyze-notes/", views.analyze_notes, name="analyze-notes"),
+    path("analyze-notes/",         views.analyze_notes,            name="analyze-notes"),
+    path("care-pathway/",          views.care_pathway,             name="care-pathway"),
 ]
