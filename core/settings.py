@@ -1,13 +1,13 @@
+from dotenv import load_dotenv
+load_dotenv()
 from pathlib import Path
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-revive-hospital-readmission-2024"
-
-DEBUG = True
-
-ALLOWED_HOSTS = ["*"]
+SECRET_KEY   = os.getenv("SECRET_KEY", "django-insecure-revive-hospital-readmission-2024")
+DEBUG        = os.getenv("DEBUG", "True") == "True"
+ALLOWED_HOSTS= os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -56,8 +56,9 @@ DATABASES = {
 STATIC_URL = "/static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True
-CELERY_BROKER_URL         = "redis://localhost:6379/0"
-CELERY_RESULT_BACKEND     = "redis://localhost:6379/0"
+REDIS_URL             = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+CELERY_BROKER_URL     = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_ACCEPT_CONTENT     = ["json"]
 CELERY_TASK_SERIALIZER    = "json"
 CELERY_RESULT_SERIALIZER  = "json"
