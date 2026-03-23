@@ -1,3 +1,4 @@
+from .fhir_integration import build_features_from_fhir, search_patients
 from .tasks import score_patient_on_discharge, test_celery
 from django.shortcuts import render
 
@@ -173,3 +174,35 @@ def test_celery_view(request):
     """GET /api/test-celery/ — verify Celery is working"""
     task = test_celery.delay()
     return Response({"status": "queued", "task_id": task.id})
+@api_view(["GET"])
+def fhir_predict(request, patient_id):
+    """GET /api/fhir/<patient_id>/ — fetch from FHIR and predict"""
+    try:
+        data     = build_features_from_fhir(patient_id)
+        features = data["features"]
+        patient  = data["patient_info"]
+
+        row    = pd.DataFrame([{f: features.get(f, 0) for f in FEATURE_NAMES}])
+        row    = row.apply(pd.to_numeric, errors="coerce").fillna(0)
+        prob   = float(model.predict_proba(row)[0, 1])
+        risk   = get_risk_level(prob)
+
+        return Response({
+            "patient"                : patient,
+            "readmission_probability": round(prob, 4),
+            "readmission_percentage" : f"{prob:.1%}",
+            "risk_level"             : risk,
+            "predicted_readmission"  : bool(prob >= THRESHOLD),
+            "fhir_features"          : features,
+        })
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+
+@api_view(["GET"])
+def fhir_search(request):
+    """GET /api/fhir/search/?name=John — search FHIR patients"""
+    name     = request.GET.get("name", "")
+    count    = int(request.GET.get("count", 5))
+    patients = search_patients(name=name, count=count)
+    return Response({"patients": patients, "count": len(patients)})
