@@ -1,3 +1,4 @@
+from .llm_notes import analyze_patient_notes
 from .fhir_integration import build_features_from_fhir, search_patients
 from .tasks import score_patient_on_discharge, test_celery
 from django.shortcuts import render
@@ -206,3 +207,14 @@ def fhir_search(request):
     count    = int(request.GET.get("count", 5))
     patients = search_patients(name=name, count=count)
     return Response({"patients": patients, "count": len(patients)})
+@api_view(["POST"])
+def analyze_notes(request):
+    """POST /api/analyze-notes/ — LLM analysis of discharge notes"""
+    notes    = request.data.get("notes", "")
+    features = request.data.get("existing_features", {})
+
+    if not notes:
+        return Response({"error": "notes field is required"}, status=400)
+
+    result = analyze_patient_notes(notes, features)
+    return Response(result)
