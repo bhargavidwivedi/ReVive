@@ -11,4 +11,8 @@ urlpatterns = [
     path("fhir/<str:patient_id>/", views.fhir_predict,             name="fhir-predict"),
     path("analyze-notes/",         views.analyze_notes,            name="analyze-notes"),
     path("care-pathway/",          views.care_pathway,             name="care-pathway"),
+    path("outcomes/",      views.record_patient_outcome, name="outcomes"),
+    path("drift/",         views.drift_detection,         name="drift"),
+    path("retrain/",       views.trigger_retraining,      name="retrain"),
+    path("system-health/", views.system_health,           name="system-health"),
 ]
