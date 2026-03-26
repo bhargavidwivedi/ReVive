@@ -6,7 +6,12 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 from sklearn.metrics import roc_auc_score
-from lightgbm import LGBMClassifier
+try:
+    from lightgbm import LGBMClassifier
+    LIGHTGBM_AVAILABLE = True
+except OSError:
+    LIGHTGBM_AVAILABLE = False
+    LGBMClassifier = None
 
 logger   = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -103,6 +108,8 @@ def retrain_model(min_new_samples: int = 100) -> dict:
     Retrains the LightGBM model with the latest data.
     Saves new model only if it performs better than current.
     """
+    if not LIGHTGBM_AVAILABLE:
+        return {"status": "unavailable", "message": "LightGBM not available on this platform"}
     logger.info("Starting model retraining...")
 
     # Load full dataset
