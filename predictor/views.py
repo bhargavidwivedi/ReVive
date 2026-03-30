@@ -264,4 +264,4 @@ def trigger_retraining(request):
 def system_health(request):
     if not LEARNING_AVAILABLE:
         return Response({"status": "ok", "model_loaded": model is not None, "features": len(FEATURE_NAMES)})
-    return Response(get_system_health())
+    return Response(get_system_health())# force redeploy 
