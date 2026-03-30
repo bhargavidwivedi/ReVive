@@ -154,16 +154,15 @@ def predict_batch(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-
 @api_view(["GET"])
 def health(request):
-    """GET /api/health/ — check API is live"""
     return Response({
         "status"    : "ok",
         "model"     : "LightGBM_tuned",
         "auc"       : 0.6812,
         "threshold" : THRESHOLD,
-        "features"  : len(FEATURE_NAMES),
+        "features"  : len(FEATURE_NAMES) if FEATURE_NAMES else 0,
+        "model_loaded": model is not None,
     })
 @api_view(["POST"])
 def trigger_discharge_scoring(request):
