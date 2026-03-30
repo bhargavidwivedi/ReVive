@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["libgomp", "gcc"]
+nixPkgs = ["libgomp", "stdenv.cc.cc.lib"]
 
-[phases.build]
-cmds = ["pip install lightgbm --no-cache-dir"]
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
