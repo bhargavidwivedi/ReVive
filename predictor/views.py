@@ -20,8 +20,18 @@ BASE_DIR   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_PATH = os.path.join(BASE_DIR, "ml_pipeline", "models", "saved", "LightGBM_tuned.pkl")
 DATA_PATH  = os.path.join(BASE_DIR, "data", "processed_features.csv")
 
-model         = joblib.load(MODEL_PATH)
-FEATURE_NAMES = [c for c in pd.read_csv(DATA_PATH, nrows=1).columns if c != "readmitted_30d"]
+_model = None
+_feature_names = None
+
+def get_model():
+    global _model, _feature_names
+    if _model is None:
+        try:
+            _model = joblib.load(MODEL_PATH)
+            _feature_names = [c for c in pd.read_csv(DATA_PATH, nrows=1).columns if c != "readmitted_30d"]
+        except Exception as e:
+            logger.error(f"Model load failed: {e}")
+    return _model, _feature_names
 THRESHOLD     = 0.369
 
 
