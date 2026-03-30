@@ -13,8 +13,13 @@ BASE_DIR   = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODEL_PATH = os.path.join(BASE_DIR, "ml_pipeline", "models", "saved", "LightGBM_tuned.pkl")
 DATA_PATH  = os.path.join(BASE_DIR, "data", "processed_features.csv")
 
-model         = joblib.load(MODEL_PATH)
-FEATURE_NAMES = [c for c in pd.read_csv(DATA_PATH, nrows=1).columns if c != "readmitted_30d"]
+try:
+    model         = joblib.load(MODEL_PATH)
+    FEATURE_NAMES = [c for c in pd.read_csv(DATA_PATH, nrows=1).columns if c != "readmitted_30d"]
+except Exception as e:
+    print(f"Warning: Could not load model in tasks: {e}")
+    model         = None
+    FEATURE_NAMES = []
 THRESHOLD     = 0.369
 
 
