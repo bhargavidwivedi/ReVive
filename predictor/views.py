@@ -78,6 +78,9 @@ def get_recommendations(risk_level, top_features=[]):
 
 @api_view(["GET"])
 def health(request):
+    import os
+    model_exists = os.path.exists(MODEL_PATH)
+    data_exists  = os.path.exists(DATA_PATH)
     return Response({
         "status"      : "ok",
         "model"       : "LightGBM_tuned",
@@ -85,6 +88,10 @@ def health(request):
         "threshold"   : THRESHOLD,
         "features"    : len(FEATURE_NAMES),
         "model_loaded": model is not None,
+        "model_file_exists": model_exists,
+        "data_file_exists" : data_exists,
+        "model_path"  : MODEL_PATH,
+        "data_path"   : DATA_PATH,
     })
 
 
