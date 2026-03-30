@@ -17,14 +17,27 @@ DATA_PATH  = os.path.join(BASE_DIR, "data", "processed_features.csv")
 THRESHOLD  = 0.369
 
 try:
-    model         = joblib.load(MODEL_PATH)
+    model = joblib.load(MODEL_PATH)
     FEATURE_NAMES = [c for c in pd.read_csv(DATA_PATH, nrows=1).columns if c != "readmitted_30d"]
     logger.info(f"Model loaded successfully. Features: {len(FEATURE_NAMES)}")
 except Exception as e:
-    logger.error(f"Model load failed: {e}")
-    model         = None
-    FEATURE_NAMES = []
-
+    logger.error(f"Joblib load failed: {e} — retraining...")
+    try:
+        from lightgbm import LGBMClassifier
+        from sklearn.model_selection import train_test_split
+        df = pd.read_csv(DATA_PATH).apply(pd.to_numeric, errors="coerce").fillna(0)
+        X  = df.drop(columns=["readmitted_30d"])
+        y  = df["readmitted_30d"]
+        FEATURE_NAMES = list(X.columns)
+        X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
+        model = LGBMClassifier(n_estimators=100, learning_rate=0.05, class_weight="balanced", random_state=42, verbose=-1)
+        model.fit(X_train, y_train)
+        joblib.dump(model, MODEL_PATH, protocol=2)
+        logger.info(f"Model retrained! Features: {len(FEATURE_NAMES)}")
+    except Exception as e2:
+        logger.error(f"Retraining failed: {e2}")
+        model         = None
+        FEATURE_NAMES = []
 # ── Lazy imports ──────────────────────────────────────────────────────────────
 try:
     from .tasks import score_patient_on_discharge, test_celery
