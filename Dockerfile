@@ -14,6 +14,8 @@ COPY . .
 
 RUN python manage.py collectstatic --noinput --settings=core.settings
 
+RUN chmod +x start.sh
+
 EXPOSE 8080
 
-CMD gunicorn core.wsgi:application --bind 0.0.0.0:$PORT --workers 2
+CMD ["/bin/bash", "start.sh"]
