@@ -1,0 +1,72 @@
+[
+  {
+    "patient_id": "P0",
+    "predicted_risk": 0.7,
+    "actually_readmitted": 1,
+    "recorded_at": "2026-03-23T18:45:04.553774",
+    "notes": ""
+  },
+  {
+    "patient_id": "P1",
+    "predicted_risk": 0.7,
+    "actually_readmitted": 0,
+    "recorded_at": "2026-03-23T18:45:04.591078",
+    "notes": ""
+  },
+  {
+    "patient_id": "P2",
+    "predicted_risk": 0.7,
+    "actually_readmitted": 1,
+    "recorded_at": "2026-03-23T18:45:04.614002",
+    "notes": ""
+  },
+  {
+    "patient_id": "P3",
+    "predicted_risk": 0.7,
+    "actually_readmitted": 0,
+    "recorded_at": "2026-03-23T18:45:04.636255",
+    "notes": ""
+  },
+  {
+    "patient_id": "P4",
+    "predicted_risk": 0.7,
+    "actually_readmitted": 1,
+    "recorded_at": "2026-03-23T18:45:04.660211",
+    "notes": ""
+  },
+  {
+    "patient_id": "P5",
+    "predicted_risk": 0.7,
+    "actually_readmitted": 0,
+    "recorded_at": "2026-03-23T18:45:04.688473",
+    "notes": ""
+  },
+  {
+    "patient_id": "P6",
+    "predicted_risk": 0.7,
+    "actually_readmitted": 1,
+    "recorded_at": "2026-03-23T18:45:04.712269",
+    "notes": ""
+  },
+  {
+    "patient_id": "P7",
+    "predicted_risk": 0.7,
+    "actually_readmitted": 0,
+    "recorded_at": "2026-03-23T18:45:04.732737",
+    "notes": ""
+  },
+  {
+    "patient_id": "P8",
+    "predicted_risk": 0.7,
+    "actually_readmitted": 1,
+    "recorded_at": "2026-03-23T18:45:04.752400",
+    "notes": ""
+  },
+  {
+    "patient_id": "P9",
+    "predicted_risk": 0.7,
+    "actually_readmitted": 0,
+    "recorded_at": "2026-03-23T18:45:04.776120",
+    "notes": ""
+  }
+]
