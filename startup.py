@@ -24,11 +24,10 @@ def train_and_save():
     joblib.dump(model, MODEL_PATH, protocol=2)
     print("Model trained and saved!")
 
-try:
-    model = joblib.load(MODEL_PATH)
-    # Test if it's a LightGBM model (will fail without libgomp)
-    model.predict([[0]*model.n_features_in_])
-    print("Model loaded successfully!")
-except Exception as e:
-    print(f"Model load failed: {e} — retraining with sklearn...")
-    train_and_save()
+# Always delete old incompatible pickle and retrain fresh
+if os.path.exists(MODEL_PATH):
+    os.remove(MODEL_PATH)
+    print("Removed old model, retraining fresh...")
+
+train_and_save()
+print("Startup complete!")
