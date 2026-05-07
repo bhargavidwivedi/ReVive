@@ -21,21 +21,7 @@ try:
     FEATURE_NAMES = [c for c in pd.read_csv(DATA_PATH, nrows=1).columns if c != "readmitted_30d"]
     logger.info(f"Model loaded successfully. Features: {len(FEATURE_NAMES)}")
 except Exception as e:
-    logger.error(f"Joblib load failed: {e} — retraining...")
-    try:
-        from lightgbm import LGBMClassifier
-        from sklearn.model_selection import train_test_split
-        df = pd.read_csv(DATA_PATH).apply(pd.to_numeric, errors="coerce").fillna(0)
-        X  = df.drop(columns=["readmitted_30d"])
-        y  = df["readmitted_30d"]
-        FEATURE_NAMES = list(X.columns)
-        X_train, _, y_train, _ = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
-        model = LGBMClassifier(n_estimators=100, learning_rate=0.05, class_weight="balanced", random_state=42, verbose=-1)
-        model.fit(X_train, y_train)
-        joblib.dump(model, MODEL_PATH, protocol=2)
-        logger.info(f"Model retrained! Features: {len(FEATURE_NAMES)}")
-    except Exception as e2:
-        logger.error(f"Retraining failed: {e2}")
+        logger.error(f"Model load failed: {e}")
         model         = None
         FEATURE_NAMES = []
 # ── Lazy imports ──────────────────────────────────────────────────────────────
@@ -126,13 +112,25 @@ def predict(request):
         risk      = get_risk_level(prob)
         recs      = get_recommendations(risk)
 
+# Log to database
+        try:
+            from .models import PredictionLog
+            PredictionLog.objects.create(
+                readmission_prob = round(prob, 4),
+                risk_level       = risk,
+                age              = int(patient_data.get("age_numeric", 0)),
+                los              = int(patient_data.get("time_in_hospital", 0)),
+            )
+        except Exception:
+            pass
+
         return Response({
             "readmission_probability": round(prob, 4),
             "readmission_percentage" : f"{prob:.1%}",
             "predicted_readmission"  : bool(predicted),
             "risk_level"             : risk,
             "recommendations"        : recs,
-        })
+        })        
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
