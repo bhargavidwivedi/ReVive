@@ -283,3 +283,36 @@ def system_health(request):
     if not LEARNING_AVAILABLE:
         return Response({"status": "ok", "model_loaded": model is not None, "features": len(FEATURE_NAMES)})
     return Response(get_system_health())# force redeploy 
+# -- 10. STATS --
+@api_view(["GET"])
+def get_stats(request):
+    try:
+        from .models import PredictionLog, PatientOutcome
+        from django.db.models import Count
+        total     = PredictionLog.objects.count()
+        high      = PredictionLog.objects.filter(risk_level="High").count()
+        medium    = PredictionLog.objects.filter(risk_level="Medium").count()
+        low       = PredictionLog.objects.filter(risk_level="Low").count()
+        outcomes  = PatientOutcome.objects.count()
+        return Response({
+            "total_predictions": total,
+            "high_risk"        : high,
+            "medium_risk"      : medium,
+            "low_risk"         : low,
+            "outcomes_recorded": outcomes,
+        })
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+# -- 11. LOGS --
+@api_view(["GET"])
+def get_logs(request):
+    try:
+        from .models import PredictionLog
+        logs = PredictionLog.objects.all()[:20]
+        data = [{"risk_level": l.risk_level, "prob": l.readmission_prob,
+                 "age": l.age, "los": l.los, "time": str(l.predicted_at)} for l in logs]
+        return Response({"logs": data})
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)

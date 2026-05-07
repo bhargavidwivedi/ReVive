@@ -15,4 +15,6 @@ urlpatterns = [
     path("drift/",         views.drift_detection,         name="drift"),
     path("retrain/",       views.trigger_retraining,      name="retrain"),
     path("system-health/", views.system_health,           name="system-health"),
+    path("stats/",   views.get_stats,   name="stats"),
+    path("logs/",    views.get_logs,    name="logs"),
 ]
