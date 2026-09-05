@@ -5,7 +5,7 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY    = os.getenv("SECRET_KEY", "django-insecure-revive-hospital-readmission-2024")
+SECRET_KEY    = os.getenv("SECRET_KEY", "django-insecure-dev-key-change-me")
 DEBUG         = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
@@ -85,6 +85,6 @@ EMAIL_BACKEND       = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST          = "smtp.gmail.com"
 EMAIL_PORT          = 587
 EMAIL_USE_TLS       = True
-EMAIL_HOST_USER     = "bhargavidwivedi56@gmail.com"
-EMAIL_HOST_PASSWORD = "***REMOVED***"
-DEFAULT_FROM_EMAIL  = "bhargavidwivedi56@gmail.com"
+EMAIL_HOST_USER     = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL  = os.getenv("DEFAULT_FROM_EMAIL", os.getenv("EMAIL_HOST_USER", ""))

@@ -17,3 +17,12 @@ staticfiles/
 
 # Outputs
 outputs/
+
+# Environment / secrets
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+service-account*.json
