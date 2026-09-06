@@ -74,7 +74,7 @@ patient = {
 col1, col2, col3 = st.columns([1, 1, 1])
 
 with col2:
-    predict_btn = st.button("🔍 Predict Readmission Risk", use_container_width=True)
+    predict_btn = st.button("🔍 Predict Readmission Risk", width='stretch')
 
 st.divider()
 
@@ -128,7 +128,7 @@ if predict_btn:
                 }
             ))
             fig.update_layout(height=300, margin=dict(t=40, b=0))
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
 
         # ── Recommendations ───────────────────────────────────────────────────
         with c2:
@@ -159,7 +159,7 @@ if predict_btn:
         ))
         fig2.update_layout(height=250, margin=dict(t=20, b=0),
                            xaxis_title="Value", yaxis_title="")
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig2, width='stretch')
 
     except Exception as e:
         st.error(f"API Error: {e}. Make sure the Django server is running!")
