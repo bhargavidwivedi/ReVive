@@ -1,280 +1,304 @@
-<!-- ════════════════════════════════════════════════════════════ -->
-<!--              REVIVE · HOSPITAL READMISSION PREDICTOR         -->
-<!-- ════════════════════════════════════════════════════════════ -->
+# ReVive — Intelligent Readmission Risk Prediction System
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=C9A84C&height=240&section=header&text=ReVive&fontSize=72&fontColor=000000&fontAlignY=40&desc=Hospital%20Readmission%20Prediction%20System&descSize=18&descAlignY=64&descColor=000000&animation=fadeIn" width="100%"/>
+ReVive predicts a patient's risk of **hospital readmission within 30 days** from
+structured clinical features, and exposes that prediction through a Django REST
+API with a Streamlit dashboard on top.
 
-<div align="center">
-
-<img src="https://readme-typing-svg.demolab.com?font=Georgia&size=17&pause=1200&color=C9A84C&background=00000000&center=true&vCenter=true&width=640&lines=Predicting+30-day+hospital+readmission+risk;Clinical+Decision+Support+powered+by+XGBoost;Django+REST+API+%C2%B7+Streamlit+Frontend;Turning+patient+data+into+life-saving+decisions" />
-
-<br/><br/>
-
-![Status](https://img.shields.io/badge/Status-In%20Progress-C9A84C?style=flat-square&labelColor=000000)
-![Python](https://img.shields.io/badge/Python-3.10+-000000?style=flat-square&logo=python&logoColor=C9A84C)
-![Django](https://img.shields.io/badge/Django-REST%20API-C9A84C?style=flat-square&logo=django&logoColor=000000)
-![Streamlit](https://img.shields.io/badge/Streamlit-Frontend-000000?style=flat-square&logo=streamlit&logoColor=C9A84C)
-![ML](https://img.shields.io/badge/Model-XGBoost-C9A84C?style=flat-square&labelColor=000000)
-
-</div>
+> **Model transparency note:** The served model is a scikit-learn
+> **`GradientBoostingClassifier`**. Some legacy filenames and comments in the
+> repository history referred to "LightGBM"; the actual artifact used for
+> serving is scikit-learn gradient boosting, saved as
+> `ml_pipeline/models/saved/readmission_model.pkl`. This README documents the
+> real, verified behaviour of the code as it stands.
 
 ---
 
-## 🔴 Problem Statement
+## Overview
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=000000&height=18&text=%E2%9C%A6%20%20PROBLEM%20STATEMENT&fontSize=13&fontColor=C9A84C&fontAlign=6&fontAlignY=65" width="100%"/>
+Unplanned 30-day readmissions are costly and often preventable. ReVive scores a
+patient at (or before) discharge and returns a probability, a risk band, and
+simple follow-up recommendations, so a care team can prioritise who needs extra
+attention.
 
-<br/>
+## Problem Statement
 
-Hospital readmissions within 30 days of discharge are one of the most critical and costly challenges in modern healthcare.
+Given a patient's encounter data (diagnoses, procedures, medications, prior
+utilisation, demographics, etc.), estimate the probability that the patient will
+be readmitted within 30 days, and turn that probability into an actionable risk
+level.
 
-- 💸 **Cost** — Over **$26 billion** spent annually on preventable readmissions
-- ⚠️ **Signal** — Readmissions indicate gaps in post-discharge care or premature discharge
-- 🏥 **Impact** — Disproportionately affects patients with diabetes, heart failure & COPD
-- 💡 **Solution** — ReVive gives clinicians a real-time risk score per patient, enabling proactive care planning before discharge
+## Solution
 
----
+A trained gradient-boosting classifier serves predictions through a Django REST
+Framework API. A Streamlit dashboard and a Django-served HTML page provide simple
+front-ends that call the API. The machine-learning pipeline (feature
+engineering, training, tuning, evaluation) lives under `ml_pipeline/` and is
+reproducible from the processed dataset.
 
-## ✨ Features
+## Key Features
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=000000&height=18&text=%E2%9C%A6%20%20FEATURES&fontSize=13&fontColor=C9A84C&fontAlign=5&fontAlignY=65" width="100%"/>
+- REST API for single and batch readmission-risk prediction.
+- Trained scikit-learn `GradientBoostingClassifier` (121 input features).
+- Risk banding (Low / Medium / High) and follow-up recommendations.
+- Streamlit dashboard that calls the API.
+- Reproducible training/evaluation pipeline with a model leaderboard.
+- Optional/experimental modules (FHIR, LLM note analysis, SHAP, drift/retrain) —
+  see [Experimental / optional components](#experimental--optional-components).
 
-<br/>
+## Tech Stack
 
-- 🔍 **Risk Prediction** — Predicts 30-day readmission probability from clinical & behavioral patient data
-- 📊 **Clinician Dashboard** — Interactive Streamlit UI for real-time patient input & risk score display
-- ⚙️ **REST API Backend** — Django-powered `/predict` endpoint for scalable real-time inference
-- 🚨 **High-Risk Flagging** — Automatically flags patients above risk threshold for early clinical intervention
-- 🧹 **Robust Preprocessing** — Handles missing values, encodes categorical variables, scales features automatically
-- 📈 **Model Benchmarking** — Logistic Regression, Random Forest & XGBoost compared on AUC-ROC and F1-score
+- **Language:** Python 3.11+ (verified on 3.12)
+- **ML:** scikit-learn 1.7.2, LightGBM, XGBoost, NumPy, pandas, joblib
+- **API:** Django 5, Django REST Framework
+- **Dashboard:** Streamlit, Plotly, requests
+- **Serving:** Gunicorn, WhiteNoise
 
----
+## Project Architecture
 
-## 🛠️ Tech Stack
+```
+Streamlit dashboard (dashboard.py)  ─┐
+Django HTML dashboard (templates/)  ─┤──HTTP──▶  Django REST API (predictor/)
+                                     │              │
+                                     │              ▼
+                                     │     readmission_model.pkl
+                                     │   (GradientBoostingClassifier)
+                                     │              │
+                                     │              ▼
+                                     └───────  prediction + risk band
+ml_pipeline/  ── feature engineering → training → tuning → evaluation
+```
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=000000&height=18&text=%E2%9C%A6%20%20TECH%20STACK&fontSize=13&fontColor=C9A84C&fontAlign=5&fontAlignY=65" width="100%"/>
-
-<br/>
-
-| Layer | Technology |
-|:------|:-----------|
-| **Language** | ![Python](https://img.shields.io/badge/Python%203.10+-C9A84C?style=flat-square&logo=python&logoColor=000000) |
-| **ML Models** | ![XGBoost](https://img.shields.io/badge/XGBoost-000000?style=flat-square&logoColor=C9A84C) ![RandomForest](https://img.shields.io/badge/Random%20Forest-C9A84C?style=flat-square&logoColor=000000) ![LogReg](https://img.shields.io/badge/Logistic%20Regression-000000?style=flat-square&logoColor=C9A84C) |
-| **Data** | ![Pandas](https://img.shields.io/badge/Pandas-C9A84C?style=flat-square&logo=pandas&logoColor=000000) ![NumPy](https://img.shields.io/badge/NumPy-000000?style=flat-square&logo=numpy&logoColor=C9A84C) ![Sklearn](https://img.shields.io/badge/Scikit--learn-C9A84C?style=flat-square&logo=scikit-learn&logoColor=000000) |
-| **Visualization** | ![Matplotlib](https://img.shields.io/badge/Matplotlib-000000?style=flat-square&logoColor=C9A84C) ![Plotly](https://img.shields.io/badge/Plotly-C9A84C?style=flat-square&logo=plotly&logoColor=000000) |
-| **Backend** | ![Django](https://img.shields.io/badge/Django%20REST-000000?style=flat-square&logo=django&logoColor=C9A84C) |
-| **Frontend** | ![Streamlit](https://img.shields.io/badge/Streamlit-C9A84C?style=flat-square&logo=streamlit&logoColor=000000) |
-| **Tools** | ![Git](https://img.shields.io/badge/Git-000000?style=flat-square&logo=git&logoColor=C9A84C) ![Jupyter](https://img.shields.io/badge/Jupyter-C9A84C?style=flat-square&logo=jupyter&logoColor=000000) ![Colab](https://img.shields.io/badge/Colab-000000?style=flat-square&logo=googlecolab&logoColor=C9A84C) |
-
----
-
-## 🏗️ Project Architecture
-
-<img src="https://capsule-render.vercel.app/api?type=rect&color=000000&height=18&text=%E2%9C%A6%20%20PROJECT%20ARCHITECTURE&fontSize=13&fontColor=C9A84C&fontAlign=6&fontAlignY=65" width="100%"/>
-
-<br/>
-
-**Folder Structure:**
+## Project Structure
 
 ```
 ReVive/
-│
-├── data/
-│   ├── raw/                    ← Raw dataset files
-│   └── processed/              ← Cleaned & preprocessed data
-│
-├── notebooks/
-│   ├── 01_EDA.ipynb            ← Exploratory Data Analysis
-│   ├── 02_preprocessing.ipynb  ← Feature Engineering & Cleaning
-│   └── 03_model_training.ipynb ← Model Training & Evaluation
-│
-├── ml/
-│   ├── preprocess.py           ← Data preprocessing pipeline
-│   ├── train.py                ← Model training script
-│   ├── evaluate.py             ← Evaluation metrics
-│   └── model.pkl               ← Saved trained model
-│
-├── backend/                    ← Django REST API
-│   ├── manage.py
-│   └── predictor/
-│       ├── views.py            ← /predict endpoint logic
-│       └── serializers.py
-│
-├── frontend/                   ← Streamlit UI
-│   └── app.py                  ← Clinician dashboard
-│
-├── requirements.txt
-└── README.md
+├── core/                     # Django project (settings, urls, wsgi)
+├── predictor/                # API app: views, urls, models, apps
+│   ├── views.py              #   /api/predict, /api/health, ...
+│   ├── apps.py               #   loads the model at startup (no silent retrain)
+│   └── (experimental modules: fhir_integration, llm_notes, explainability, ...)
+├── ml_pipeline/
+│   ├── feature_engineering/  # feature construction
+│   ├── models/               # train.py, tune.py, predict.py
+│   │   └── saved/            # committed model binaries (normal Git files)
+│   └── evaluation/           # metrics.py
+├── templates/dashboard.html  # Django-served dashboard
+├── dashboard.py              # Streamlit dashboard
+├── data/processed_features.csv
+├── requirements.txt          # core (pinned, verified)
+├── requirements-optional.txt # experimental extras
+└── .env.example
 ```
 
-**Data Flow:**
+## Dataset
 
-```
-Clinician Input (Streamlit)
-        ↓
-  HTTP POST → /predict
-        ↓
-  Preprocessing Pipeline
-        ↓
-  XGBoost Model Inference
-        ↓
-  Risk Score + Flag Returned
-        ↓
-  Result Displayed on Dashboard
-```
+- **Source:** UCI *Diabetes 130-US hospitals (1999–2008)* readmission dataset.
+- **Processed file:** `data/processed_features.csv` — **99,343 rows × 121
+  feature columns** plus the target `readmitted_30d`.
+- **Target balance:** ~47% positive in the processed file. Note this is a
+  **balanced** version of the problem; the natural 30-day readmission rate is
+  much lower, so metrics here reflect the balanced dataset (see
+  [Known limitations](#known-limitations)).
 
----
+## Data Preprocessing
 
-## 🚀 Setup Instructions
+Feature engineering lives in `ml_pipeline/feature_engineering/`. The processed
+matrix contains 121 numeric features (utilisation counts, diagnosis categories,
+medication indicators, demographic encodings, lab summaries, etc.). Missing
+features supplied to the API at inference time are defaulted to 0.
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=000000&height=18&text=%E2%9C%A6%20%20SETUP%20INSTRUCTIONS&fontSize=13&fontColor=C9A84C&fontAlign=6&fontAlignY=65" width="100%"/>
+## Machine Learning Model
 
-<br/>
+- **Served model:** scikit-learn **`GradientBoostingClassifier`**
+  (`ml_pipeline/models/saved/readmission_model.pkl`, ~256 KB).
+- **Input:** 121 features (the columns of `processed_features.csv` excluding
+  `readmitted_30d`).
+- **Decision threshold:** `0.369` (tuned to favour recall — catching
+  readmissions — over precision).
+- Baseline models (Logistic Regression, Random Forest, XGBoost, LightGBM) are
+  also trained by `ml_pipeline/models/train.py` for comparison.
 
-**`STEP 01` — Clone the repository**
+## Model Evaluation
+
+All numbers below were **reproduced locally** from this repository on the
+seed-42 stratified hold-out split (19,869 rows). They are not estimated or
+invented.
+
+**Served model — `GradientBoostingClassifier` @ threshold 0.369:**
+
+| Metric | Value |
+|---|---|
+| ROC-AUC | **0.6755** |
+| Precision | 0.528 |
+| Recall | 0.861 |
+| F1 | 0.655 |
+
+Confusion matrix (hold-out): TN 3304 · FP 7202 · FN 1304 · TP 8059 — i.e. the
+model catches ~86% of true readmissions at the cost of lower precision, a
+deliberate clinical trade-off.
+
+**Model comparison (hold-out ROC-AUC, reproduced via `train.py`):**
+
+| Model | ROC-AUC |
+|---|---|
+| XGBoost | 0.681 |
+| LightGBM | 0.680 |
+| Random Forest | 0.670 |
+| Logistic Regression | 0.667 |
+
+An AUC around 0.68 is modest but realistic for this dataset and task.
+
+## Application / Dashboard
+
+- **Streamlit** (`dashboard.py`): a form-based UI that posts to the API and
+  displays the risk result.
+- **Django HTML** (`templates/dashboard.html`): a server-rendered dashboard at
+  `/` that also calls the API.
+
+Both are thin clients over the REST API. (No screenshots are included; add real
+ones after running locally if desired.)
+
+## API
+
+Base path: `/api/`
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET  | `/api/health/` | Service + model status |
+| POST | `/api/predict/` | Single-patient prediction |
+| POST | `/api/predict/batch/` | Batch prediction |
+
+Additional endpoints (FHIR, analyze-notes, care-pathway, drift, retrain,
+system-health, stats, logs) belong to the experimental layer and are **not
+verified** — see below.
+
+### Example — single prediction
 
 ```bash
-git clone https://github.com/bhargavidwivedi/ReVive.git
+curl -X POST http://127.0.0.1:8000/api/predict/ \
+  -H "Content-Type: application/json" \
+  -d '{"patient_data": {"time_in_hospital": 5, "num_medications": 15,
+        "number_diagnoses": 9, "num_lab_procedures": 40, "age_numeric": 70}}'
+```
+
+Any of the 121 features may be provided; omitted features default to 0.
+
+**Verified response (200):**
+
+```json
+{
+  "readmission_probability": 0.3328,
+  "readmission_percentage": "33.3%",
+  "predicted_readmission": false,
+  "risk_level": "Medium",
+  "recommendations": ["Schedule follow-up within 7 days of discharge", "..."]
+}
+```
+
+## Installation
+
+Requires **Python 3.11+** and the pinned dependencies (note **scikit-learn
+1.7.2** — the saved model requires it to deserialize).
+
+```bash
+git clone <your-repo-url> ReVive
 cd ReVive
-```
 
-**`STEP 02` — Create & activate virtual environment**
-
-```bash
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# macOS / Linux
-source venv/bin/activate
-```
-
-**`STEP 03` — Install dependencies**
-
-```bash
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+# Optional experimental features:
+# pip install -r requirements-optional.txt
+
+cp .env.example .env      # then fill in values as needed
 ```
 
-**`STEP 04` — Run the Django backend**
+> **Model files are committed as normal Git files (not Git LFS)**, so a plain
+> `git clone` gives you the real, usable binaries — no `git lfs pull` required.
+
+## How to Run
+
+### Django API
 
 ```bash
-cd backend
 python manage.py migrate
 python manage.py runserver
+# API now at http://127.0.0.1:8000/api/
 ```
 
-> API live at → `http://127.0.0.1:8000/`
+### Streamlit dashboard
 
-**`STEP 05` — Run the Streamlit frontend** *(open a new terminal)*
+Run the API (above) first, then in a second terminal:
 
 ```bash
-cd frontend
-streamlit run app.py
+streamlit run dashboard.py
 ```
 
-> Dashboard live at → `http://localhost:8501/`
+## Model-loading verification
 
----
+Confirm the model loaded successfully:
 
-## 📡 API Reference
+```bash
+# Option A — health endpoint (server running)
+curl http://127.0.0.1:8000/api/health/
+# expect: "model_loaded": true, "model": "GradientBoostingClassifier", "features": 121
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=000000&height=18&text=%E2%9C%A6%20%20API%20REFERENCE&fontSize=13&fontColor=C9A84C&fontAlign=5&fontAlignY=65" width="100%"/>
-
-<br/>
-
-**Endpoint:** `POST http://127.0.0.1:8000/predict/`
-
-**Request Body:**
-
-```json
-{
-  "age": 67,
-  "gender": "Female",
-  "diagnosis": "Heart Failure",
-  "num_prior_admissions": 3,
-  "length_of_stay": 7,
-  "num_medications": 12,
-  "discharge_type": "Home",
-  "comorbidity_score": 4
-}
+# Option B — direct load check
+python -c "import joblib; m=joblib.load('ml_pipeline/models/saved/readmission_model.pkl'); print(type(m).__name__)"
+# expect: GradientBoostingClassifier
 ```
 
-**Response:**
+If loading fails with `No module named '_loss'`, your scikit-learn version is
+wrong — install `scikit-learn==1.7.2`.
 
-```json
-{
-  "readmission_probability": 0.78,
-  "risk_level": "High",
-  "flag": true,
-  "message": "Patient is at HIGH risk. Early intervention recommended."
-}
-```
+## Model files
 
-**Response Fields:**
+Committed as normal Git objects under `ml_pipeline/models/saved/`:
 
-| Field | Type | Description |
-|:------|:----:|:------------|
-| `readmission_probability` | `float` | Score between 0 and 1 |
-| `risk_level` | `string` | `Low` · `Medium` · `High` |
-| `flag` | `boolean` | `true` if probability > 0.5 |
-| `message` | `string` | Clinical recommendation note |
+| File | Size | Type |
+|---|---|---|
+| `readmission_model.pkl` (**served**) | 256 KB | GradientBoostingClassifier |
+| `LightGBM.pkl` | 983 KB | LGBMClassifier |
+| `XGBoost.pkl` | 757 KB | XGBClassifier |
+| `RandomForest.pkl` | 9.8 MB | RandomForestClassifier |
+| `LogisticRegression.pkl` | 1.8 KB | LogisticRegression |
 
----
+`scaler.pkl` is **not** committed: it is only used by evaluation and the
+Logistic Regression baseline, not by the serving path, and is regenerated by
+`ml_pipeline/models/train.py`.
 
-## 📸 Screenshots
+## Known limitations
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=000000&height=18&text=%E2%9C%A6%20%20SCREENSHOTS&fontSize=13&fontColor=C9A84C&fontAlign=5&fontAlignY=65" width="100%"/>
+- **Balanced dataset:** metrics reflect the ~47%-positive processed file, not the
+  lower natural readmission base rate.
+- **Dashboard feature coverage:** the interactive dashboard collects a subset of
+  the 121 features; unspecified features are sent as 0, so dashboard predictions
+  are approximate compared with a fully-populated feature vector.
+- **Baseline pickles & scikit-learn version:** the served model requires
+  scikit-learn 1.7.2. Some baseline `.pkl` files were serialized under a
+  different scikit-learn version and may emit version warnings or fail to load
+  under 1.7.2; they are reference artifacts and can be regenerated with
+  `python ml_pipeline/models/train.py`.
+- **No verified deployment:** there is no verified live/hosted deployment; run
+  locally as documented.
 
-<br/>
+## Experimental / optional components
 
-> Screenshots will be added upon project completion.
+The following modules exist in the codebase but are **not part of the verified
+core** and were **not validated end-to-end**. They are imported lazily, so the
+core API runs without them. Each requires extra dependencies
+(`requirements-optional.txt`) and, in some cases, external services or API keys:
 
-| View | Status |
-|:-----|:------:|
-| Clinician Input Form | ![Soon](https://img.shields.io/badge/Coming%20Soon-C9A84C?style=flat-square&labelColor=000000) |
-| Risk Score Dashboard | ![Soon](https://img.shields.io/badge/Coming%20Soon-000000?style=flat-square&labelColor=C9A84C) |
-| Model Performance Metrics | ![Soon](https://img.shields.io/badge/Coming%20Soon-C9A84C?style=flat-square&labelColor=000000) |
-| High-Risk Patient Alert | ![Soon](https://img.shields.io/badge/Coming%20Soon-000000?style=flat-square&labelColor=C9A84C) |
+- **LLM clinical-note analysis** (`predictor/llm_notes.py`) — requires
+  `ANTHROPIC_API_KEY`.
+- **SHAP explainability** (`predictor/explainability.py`).
+- **FHIR integration** (`predictor/fhir_integration.py`) — requires a FHIR server.
+- **Voice-note transcription** (`predictor/voice_notes.py`) — requires Whisper.
+- **Care-pathway assignment, risk timeline, knowledge base.**
+- **Drift detection / retraining and Celery background scoring**
+  (`predictor/continuous_learning.py`, `tasks.py`) — require Redis + Celery.
 
----
+These are presented as experimental work, not as production-ready features.
 
-## 🔮 Future Improvements
+## Author
 
-<img src="https://capsule-render.vercel.app/api?type=rect&color=000000&height=18&text=%E2%9C%A6%20%20FUTURE%20IMPROVEMENTS&fontSize=13&fontColor=C9A84C&fontAlign=6&fontAlignY=65" width="100%"/>
-
-<br/>
-
-- [ ] 🔐 Clinician authentication & role-based access control
-- [ ] 🐳 Dockerize the full application for easy deployment
-- [ ] ☁️ Deploy on AWS with a live demo link
-- [ ] 🧠 SHAP / LIME explainability for model transparency
-- [ ] 📉 Deep learning models — LSTM for temporal patient data
-- [ ] 🏥 Integrate with Electronic Health Record (EHR) system API
-- [ ] ⚛️ React.js frontend to replace Streamlit
-
----
-
-## 👩‍💻 Author
-
-<img src="https://capsule-render.vercel.app/api?type=rect&color=000000&height=18&text=%E2%9C%A6%20%20AUTHOR&fontSize=13&fontColor=C9A84C&fontAlign=5&fontAlignY=65" width="100%"/>
-
-<br/>
-
-<div align="center">
-
-**Bhargavi Dwivedi**
-
-*Integrated M.Tech · Artificial Intelligence · VIT Bhopal · CGPA 8.73*
-
-<br/>
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-C9A84C?style=for-the-badge&logo=linkedin&logoColor=000000)](https://www.linkedin.com/in/bhargavi-dwivedi-093620291/)
-[![GitHub](https://img.shields.io/badge/GitHub-000000?style=for-the-badge&logo=github&logoColor=C9A84C)](https://github.com/bhargavidwivedi)
-[![Gmail](https://img.shields.io/badge/Gmail-C9A84C?style=for-the-badge&logo=gmail&logoColor=000000)](mailto:bhargavidwivedi56@gmail.com)
-
-</div>
-
-<br/>
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=C9A84C&height=140&section=footer&text=%22Turning%20patient%20data%20into%20life-saving%20decisions%22&fontSize=15&fontColor=000000&fontAlignY=65&animation=fadeIn" width="100%"/>
+**Bhargavi Dwivedi** — Integrated M.Tech (AI/ML), VIT Bhopal.
