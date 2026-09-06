@@ -11,7 +11,7 @@ from ml_pipeline.feature_engineering.engineer import run_pipeline
 
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 
-MODEL_PATH = "ml_pipeline/models/saved/LightGBM_tuned.pkl"
+MODEL_PATH = "ml_pipeline/models/saved/readmission_model.pkl"
 THRESHOLD  = 0.369   # optimal threshold from evaluation
 
 

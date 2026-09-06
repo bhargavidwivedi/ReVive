@@ -26,3 +26,4 @@ outputs/
 credentials.json
 secrets.json
 service-account*.json
+db.sqlite3

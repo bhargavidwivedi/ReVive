@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_DIR      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_PATH    = os.path.join(BASE_DIR, "ml_pipeline", "models", "saved", "LightGBM_tuned.pkl")
+MODEL_PATH    = os.path.join(BASE_DIR, "ml_pipeline", "models", "saved", "readmission_model.pkl")
 DATA_PATH     = os.path.join(BASE_DIR, "data", "processed_features.csv")
 OUTPUT_DIR    = os.path.join(BASE_DIR, "outputs", "explanations")
 os.makedirs(OUTPUT_DIR, exist_ok=True)

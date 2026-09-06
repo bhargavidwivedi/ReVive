@@ -1,24 +1,38 @@
-django>=4.2
-djangorestframework>=3.14
-django-cors-headers>=4.0
-django-celery-beat>=2.5
-django-celery-results>=2.5
-celery>=5.3
-redis>=5.0
-pandas>=2.0
-numpy>=1.24
-scikit-learn>=1.3
-lightgbm>=4.0
-scikit-learn>=1.3
-optuna>=3.3
-shap>=0.43
-matplotlib>=3.7
-seaborn>=0.12
-joblib>=1.3
-python-dotenv>=1.0
-anthropic>=0.20
-fhirclient>=4.0
+# ── ReVive core dependencies ────────────────────────────────────────────────
+# Pinned versions are VERIFIED in this project: the served model
+# (ml_pipeline/models/saved/readmission_model.pkl) is a scikit-learn
+# GradientBoostingClassifier that was serialized with scikit-learn 1.7.2 and
+# REQUIRES scikit-learn==1.7.2 to deserialize. Do not bump scikit-learn without
+# re-serializing the model.
+
+# ML / data (verified: model loads + predicts on the 121-feature input)
+scikit-learn==1.7.2
+numpy==2.5.2
+pandas==3.0.5
+joblib==1.6.0
+lightgbm==4.7.0
+xgboost==3.4.1
+
+# Web API (verified: Django boots, /api/health/ and /api/predict/ respond)
+Django==5.0.14
+djangorestframework==3.17.2
+django-cors-headers==4.9.0
+
+# Task queue apps — required because they are listed in INSTALLED_APPS
+django-celery-beat==2.9.0
+django-celery-results==2.6.0
+celery==5.6.3
+redis==8.1.0
+
+# Config
+python-dotenv==1.2.3
+
+# ── Serving / deployment (not exercised in local verification; safe minimums) ─
 gunicorn>=21.0
 whitenoise>=6.6
-psycopg2-binary>=2.9gunicorn
-whitenoise
+psycopg2-binary>=2.9
+
+# ── Streamlit dashboard (frontend that calls the API) ────────────────────────
+streamlit>=1.30
+requests>=2.31
+plotly>=5.18

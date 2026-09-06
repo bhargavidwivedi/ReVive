@@ -1,0 +1,23 @@
+# ── ReVive OPTIONAL / EXPERIMENTAL dependencies ─────────────────────────────
+# These power components that are NOT part of the verified core serving path
+# and are imported lazily (the app runs without them). Install only if you want
+# to use the corresponding experimental feature.
+
+# Hyperparameter tuning (ml_pipeline/models/tune.py)
+optuna>=3.3
+
+# Model explainability / SHAP charts (predictor/explainability.py) — EXPERIMENTAL
+shap>=0.43
+
+# Evaluation charts (ml_pipeline/evaluation/metrics.py)
+matplotlib>=3.7
+seaborn>=0.12
+
+# LLM clinical-note analysis (predictor/llm_notes.py) — EXPERIMENTAL, needs ANTHROPIC_API_KEY
+anthropic>=0.20
+
+# FHIR integration (predictor/fhir_integration.py) — EXPERIMENTAL, needs a FHIR server
+fhirclient>=4.0
+
+# Voice-note transcription (predictor/voice_notes.py) — EXPERIMENTAL
+openai-whisper>=20231117

@@ -3,7 +3,7 @@ import joblib
 import pandas as pd
 
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "ml_pipeline", "models", "saved", "LightGBM_tuned.pkl")
+MODEL_PATH = os.path.join(BASE_DIR, "ml_pipeline", "models", "saved", "readmission_model.pkl")
 DATA_PATH  = os.path.join(BASE_DIR, "data", "processed_features.csv")
 
 def train_and_save():

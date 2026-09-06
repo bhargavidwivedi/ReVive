@@ -1,2 +1,5 @@
 *.csv filter=lfs diff=lfs merge=lfs -text
 data/processed_features.csv !text !filter !merge !diff
+
+# Model artifacts are committed as normal Git objects (NOT LFS)
+*.pkl binary

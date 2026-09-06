@@ -112,7 +112,7 @@ def train_best_model(study, X_train, y_train, X_test, y_test):
 # ── 5. SAVE TUNED MODEL ───────────────────────────────────────────────────────
 
 def save_tuned_model(model, auc):
-    path = "ml_pipeline/models/saved/LightGBM_tuned.pkl"
+    path = "ml_pipeline/models/saved/readmission_model.pkl"
     joblib.dump(model, path)
     print(f"\n  Saved tuned model → {path}")
     print(f"  Final ROC-AUC     : {auc:.4f}")

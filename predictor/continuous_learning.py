@@ -16,7 +16,7 @@ except OSError:
 logger   = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-MODEL_PATH      = os.path.join(BASE_DIR, "ml_pipeline", "models", "saved", "LightGBM_tuned.pkl")
+MODEL_PATH      = os.path.join(BASE_DIR, "ml_pipeline", "models", "saved", "readmission_model.pkl")
 NEW_MODEL_PATH  = os.path.join(BASE_DIR, "ml_pipeline", "models", "saved", "LightGBM_retrained.pkl")
 DATA_PATH       = os.path.join(BASE_DIR, "data", "processed_features.csv")
 OUTCOMES_PATH   = os.path.join(BASE_DIR, "data", "outcomes.json")
@@ -220,7 +220,7 @@ def get_system_health() -> dict:
     drift_report  = detect_drift()
 
     return {
-        "model_version"   : "LightGBM_tuned",
+        "model_version"   : "GradientBoostingClassifier",
         "baseline_auc"    : 0.6812,
         "outcomes_recorded": len(outcomes),
         "retraining_count": len(metrics_hist),
